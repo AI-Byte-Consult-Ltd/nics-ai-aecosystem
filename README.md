@@ -1,6 +1,12 @@
-# NICS Professional Market Intelligence Agent
+# NICS AI Ecosystem
 
-Production-oriented market intelligence workflow for the NICS AI Ecosystem. It combines deterministic technical analysis, official TradingView alert webhooks, macroeconomic events, financial news and a Qwen explanation layer.
+## NICS AI Trading
+
+**Developed by AI Byte Consult Ltd**
+
+### Professional Market Intelligence Agent
+
+A production-grade market intelligence workflow for the NICS AI Ecosystem. It combines deterministic technical analysis, official TradingView alert webhooks, macroeconomic events, financial news and a Qwen explanation layer.
 
 The workflow never lets the language model calculate or alter Entry, TP1-TP4 or Stop Loss. Those levels are produced by tested JavaScript. Qwen receives the finished market snapshot and explains why the scenario may matter.
 
