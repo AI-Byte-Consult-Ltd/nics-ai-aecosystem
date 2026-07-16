@@ -1,0 +1,826 @@
+{
+  "name": "NICS Professional Market Intelligence Agent V1",
+  "nodes": [
+    {
+      "id": "10000000-0000-4000-8000-000000000001",
+      "name": "Manual Test",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1200,
+        100
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000002",
+      "name": "Market Scan (15m)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1200,
+        -180
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000003",
+      "name": "Daily Digest (07:30)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1200,
+        -40
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "30 7 * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000004",
+      "name": "TradingView Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1200,
+        240
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "nics-tradingview-alert",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "7d489d50-227d-4c0b-8b02-1fb84d3c1ee1"
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000005",
+      "name": "Personal Market Query",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1200,
+        380
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "nics-market-query",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "3456c8c7-7f02-4509-b5dc-685318c3f9bb"
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000006",
+      "name": "Manual Mode",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -980,
+        100
+      ],
+      "parameters": {
+        "jsCode": "const input = $input.first()?.json ?? {};\nreturn [{ json: { ...input, _runMode: \"manual\" } }];"
+      }
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000007",
+      "name": "Scan Mode",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -980,
+        -180
+      ],
+      "parameters": {
+        "jsCode": "const input = $input.first()?.json ?? {};\nreturn [{ json: { ...input, _runMode: \"scan\" } }];"
+      }
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000008",
+      "name": "Digest Mode",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -980,
+        -40
+      ],
+      "parameters": {
+        "jsCode": "const input = $input.first()?.json ?? {};\nreturn [{ json: { ...input, _runMode: \"digest\" } }];"
+      }
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000009",
+      "name": "TradingView Mode",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -980,
+        240
+      ],
+      "parameters": {
+        "jsCode": "const input = $input.first()?.json ?? {};\nreturn [{ json: { ...input, _runMode: \"tradingview\" } }];"
+      }
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000010",
+      "name": "Assistant Mode",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -980,
+        380
+      ],
+      "parameters": {
+        "jsCode": "const input = $input.first()?.json ?? {};\nreturn [{ json: { ...input, _runMode: \"assistant\" } }];"
+      }
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000011",
+      "name": "Runtime Config",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -740,
+        60
+      ],
+      "parameters": {
+        "jsCode": "const input = $input.first()?.json ?? {};\nconst environment = $env;\nconst body = input.body ?? input;\nlet instruments = [{\"symbol\":\"XAU/USD\",\"label\":\"Gold\",\"assetClass\":\"commodity\",\"currencies\":[\"USD\"]},{\"symbol\":\"XAG/USD\",\"label\":\"Silver\",\"assetClass\":\"commodity\",\"currencies\":[\"USD\"]},{\"symbol\":\"EUR/USD\",\"label\":\"EUR/USD\",\"assetClass\":\"forex\",\"currencies\":[\"EUR\",\"USD\"]},{\"symbol\":\"GBP/USD\",\"label\":\"GBP/USD\",\"assetClass\":\"forex\",\"currencies\":[\"GBP\",\"USD\"]},{\"symbol\":\"USD/JPY\",\"label\":\"USD/JPY\",\"assetClass\":\"forex\",\"currencies\":[\"USD\",\"JPY\"]},{\"symbol\":\"USD/CHF\",\"label\":\"USD/CHF\",\"assetClass\":\"forex\",\"currencies\":[\"USD\",\"CHF\"]},{\"symbol\":\"AUD/USD\",\"label\":\"AUD/USD\",\"assetClass\":\"forex\",\"currencies\":[\"AUD\",\"USD\"]},{\"symbol\":\"USD/CAD\",\"label\":\"USD/CAD\",\"assetClass\":\"forex\",\"currencies\":[\"USD\",\"CAD\"]},{\"symbol\":\"WTI/USD\",\"label\":\"WTI Crude Oil\",\"assetClass\":\"commodity\",\"currencies\":[\"USD\",\"CAD\"]},{\"symbol\":\"BRENT/USD\",\"label\":\"Brent Crude Oil\",\"assetClass\":\"commodity\",\"currencies\":[\"USD\",\"GBP\"]},{\"symbol\":\"BTC/USD\",\"label\":\"Bitcoin\",\"assetClass\":\"crypto\",\"currencies\":[\"USD\"]},{\"symbol\":\"ETH/USD\",\"label\":\"Ethereum\",\"assetClass\":\"crypto\",\"currencies\":[\"USD\"]},{\"symbol\":\"SOL/USD\",\"label\":\"Solana\",\"assetClass\":\"crypto\",\"currencies\":[\"USD\"]}];\nif (environment.NICS_INSTRUMENTS_JSON) {\n  try {\n    const custom = JSON.parse(environment.NICS_INSTRUMENTS_JSON);\n    if (Array.isArray(custom) && custom.length) instruments = custom;\n  } catch (error) { throw new Error('NICS_INSTRUMENTS_JSON is not valid JSON'); }\n}\nconst requestedSymbols = Array.isArray(body.symbols) ? body.symbols.map(String) : [];\nif (requestedSymbols.length) {\n  const bySymbol = new Map(instruments.map((instrument) => [instrument.symbol, instrument]));\n  instruments = requestedSymbols.map((symbol) => bySymbol.get(symbol) ?? {\n    symbol, label: symbol, assetClass: 'other', currencies: ['USD']\n  });\n}\nconst tier = String(environment.NICS_SERVICE_TIER ?? 'elite').toLowerCase();\nconst marketLimit = tier === 'essential' ? 1 : tier === 'professional' ? 3 : Infinity;\ninstruments = instruments.slice(0, marketLimit);\nconst requestedRisk = String(body.riskProfile ?? environment.NICS_RISK_PROFILE ?? 'balanced').toLowerCase();\nconst riskProfile = ['conservative','balanced','aggressive'].includes(requestedRisk) ? requestedRisk : 'balanced';\nconst config = {\n  instruments,\n  timeframes: [\"5min\",\"15min\",\"1h\",\"4h\"],\n  riskProfile,\n  serviceTier: tier,\n  eventBlackoutMinutesBefore: 30,\n  eventBlackoutMinutesAfter: 15,\n  twelveDataApiKey: environment.TWELVE_DATA_API_KEY ?? '',\n  tradingEconomicsApiKey: environment.TRADING_ECONOMICS_API_KEY ?? '',\n  dashscopeApiKey: environment.DASHSCOPE_API_KEY ?? '',\n  modelStudioBaseUrl: environment.ALIBABA_MODEL_STUDIO_BASE_URL ?? 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1',\n  qwenModel: environment.QWEN_MODEL ?? 'qwen-plus',\n  tradingViewSecret: environment.TRADINGVIEW_WEBHOOK_SECRET ?? '',\n  telegramBotToken: environment.TELEGRAM_BOT_TOKEN ?? '',\n  telegramChatId: environment.TELEGRAM_CHAT_ID ?? '',\n  whatsAppAccessToken: environment.WHATSAPP_ACCESS_TOKEN ?? '',\n  whatsAppPhoneNumberId: environment.WHATSAPP_PHONE_NUMBER_ID ?? '',\n  whatsAppTo: environment.WHATSAPP_TO ?? '',\n  notificationCooldownMinutes: 60\n};\nconst runMode = input._runMode ?? 'manual';\nif (runMode === 'tradingview' || runMode === 'assistant') {\n  if (!config.tradingViewSecret || body.secret !== config.tradingViewSecret) {\n    throw new Error('Secured webhook rejected: invalid shared secret');\n  }\n}\nconst missing = [\n  ['TWELVE_DATA_API_KEY', config.twelveDataApiKey],\n  ['TRADING_ECONOMICS_API_KEY', config.tradingEconomicsApiKey],\n  ['DASHSCOPE_API_KEY', config.dashscopeApiKey]\n].filter((entry) => !entry[1]).map((entry) => entry[0]);\nif (missing.length) throw new Error('Missing required n8n environment variables: ' + missing.join(', '));\nreturn [{ json: {\n  runId: $execution.id,\n  runMode,\n  requestedAt: new Date().toISOString(),\n  triggerPayload: (runMode === 'tradingview' || runMode === 'assistant') ? body : {},\n  config\n} }];"
+      }
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000012",
+      "name": "Build Market Requests",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -500,
+        60
+      ],
+      "parameters": {
+        "jsCode": "const runtime = $input.first().json;\nconst config = runtime.config;\nconst symbols = config.instruments.map((instrument) => instrument.symbol).join(',');\nreturn config.timeframes.map((interval) => ({ json: {\n  interval,\n  url: 'https://api.twelvedata.com/time_series?symbol=' + encodeURIComponent(symbols) +\n    '&interval=' + encodeURIComponent(interval) +\n    '&outputsize=240&timezone=UTC&format=JSON&apikey=' + encodeURIComponent(config.twelveDataApiKey)\n} }));"
+      }
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000013",
+      "name": "Fetch Batched OHLC",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -260,
+        60
+      ],
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1500
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000014",
+      "name": "Deterministic Technical Engine",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -20,
+        60
+      ],
+      "parameters": {
+        "jsCode": "const TIMEFRAME_MINUTES = {\n  \"1min\": 1,\n  \"5min\": 5,\n  \"15min\": 15,\n  \"30min\": 30,\n  \"45min\": 45,\n  \"1h\": 60,\n  \"2h\": 120,\n  \"4h\": 240,\n  \"1day\": 1440\n};\n\nconst TIMEFRAME_WEIGHTS = {\n  \"1min\": 0.05,\n  \"5min\": 0.15,\n  \"15min\": 0.25,\n  \"30min\": 0.30,\n  \"45min\": 0.30,\n  \"1h\": 0.35,\n  \"2h\": 0.40,\n  \"4h\": 0.45,\n  \"1day\": 0.50\n};\n\nfunction number(value) {\n  const parsed = Number(value);\n  return Number.isFinite(parsed) ? parsed : null;\n}\n\nfunction precisionFor(price) {\n  if (price >= 1000) return 2;\n  if (price >= 100) return 3;\n  if (price >= 1) return 5;\n  return 7;\n}\n\nfunction rounded(value, reference) {\n  if (!Number.isFinite(value)) return null;\n  return Number(value.toFixed(precisionFor(reference ?? value)));\n}\n\nfunction average(values) {\n  const valid = values.filter(Number.isFinite);\n  if (!valid.length) return null;\n  return valid.reduce((sum, value) => sum + value, 0) / valid.length;\n}\n\nfunction ema(values, period) {\n  const valid = values.filter(Number.isFinite);\n  if (!valid.length) return null;\n  const seed = valid.slice(0, Math.min(period, valid.length));\n  let result = average(seed);\n  const multiplier = 2 / (period + 1);\n  for (let i = seed.length; i < valid.length; i += 1) {\n    result = (valid[i] - result) * multiplier + result;\n  }\n  return result;\n}\n\nfunction rsi(values, period = 14) {\n  if (values.length <= period) return null;\n  let gains = 0;\n  let losses = 0;\n  for (let i = 1; i <= period; i += 1) {\n    const delta = values[i] - values[i - 1];\n    if (delta >= 0) gains += delta;\n    else losses -= delta;\n  }\n  let avgGain = gains / period;\n  let avgLoss = losses / period;\n  for (let i = period + 1; i < values.length; i += 1) {\n    const delta = values[i] - values[i - 1];\n    const gain = Math.max(delta, 0);\n    const loss = Math.max(-delta, 0);\n    avgGain = ((avgGain * (period - 1)) + gain) / period;\n    avgLoss = ((avgLoss * (period - 1)) + loss) / period;\n  }\n  if (avgLoss === 0) return 100;\n  const relativeStrength = avgGain / avgLoss;\n  return 100 - (100 / (1 + relativeStrength));\n}\n\nfunction atr(candles, period = 14) {\n  if (candles.length < 2) return null;\n  const ranges = [];\n  for (let i = 1; i < candles.length; i += 1) {\n    const current = candles[i];\n    const previous = candles[i - 1];\n    ranges.push(Math.max(\n      current.high - current.low,\n      Math.abs(current.high - previous.close),\n      Math.abs(current.low - previous.close)\n    ));\n  }\n  return average(ranges.slice(-period));\n}\n\nfunction rangeMidpoint(candles, period) {\n  const sample = candles.slice(-period);\n  if (!sample.length) return null;\n  const high = Math.max(...sample.map((candle) => candle.high));\n  const low = Math.min(...sample.map((candle) => candle.low));\n  return (high + low) / 2;\n}\n\nfunction ichimoku(candles) {\n  if (candles.length < 52) return null;\n  const tenkan = rangeMidpoint(candles, 9);\n  const kijun = rangeMidpoint(candles, 26);\n  const spanA = (tenkan + kijun) / 2;\n  const spanB = rangeMidpoint(candles, 52);\n  return {\n    tenkan,\n    kijun,\n    spanA,\n    spanB,\n    cloudTop: Math.max(spanA, spanB),\n    cloudBottom: Math.min(spanA, spanB)\n  };\n}\n\nfunction fibonacci(candles, lookback = 100) {\n  const sample = candles.slice(-lookback);\n  if (!sample.length) return null;\n  let high = -Infinity;\n  let low = Infinity;\n  let highIndex = -1;\n  let lowIndex = -1;\n  sample.forEach((candle, index) => {\n    if (candle.high > high) {\n      high = candle.high;\n      highIndex = index;\n    }\n    if (candle.low < low) {\n      low = candle.low;\n      lowIndex = index;\n    }\n  });\n  const range = high - low;\n  if (!(range > 0)) return null;\n  const impulse = highIndex > lowIndex ? \"bullish\" : \"bearish\";\n  const oteLow = impulse === \"bullish\" ? high - (range * 0.79) : low + (range * 0.62);\n  const oteHigh = impulse === \"bullish\" ? high - (range * 0.62) : low + (range * 0.79);\n  return {\n    impulse,\n    high,\n    low,\n    oteLow: Math.min(oteLow, oteHigh),\n    oteHigh: Math.max(oteLow, oteHigh)\n  };\n}\n\nfunction yesterdayBox(candles) {\n  if (!candles.length) return null;\n  const days = new Map();\n  for (const candle of candles) {\n    const dateKey = candle.datetime.slice(0, 10);\n    if (!days.has(dateKey)) days.set(dateKey, []);\n    days.get(dateKey).push(candle);\n  }\n  const keys = [...days.keys()].sort();\n  if (keys.length < 2) return null;\n  const prior = days.get(keys[keys.length - 2]);\n  const high = Math.max(...prior.map((candle) => candle.high));\n  const low = Math.min(...prior.map((candle) => candle.low));\n  return { date: keys[keys.length - 2], high, low, mid: (high + low) / 2 };\n}\n\nfunction parseCandles(payload) {\n  const values = Array.isArray(payload?.values) ? payload.values : [];\n  const parsed = values.map((value) => ({\n    datetime: String(value.datetime ?? value.timestamp ?? \"\"),\n    open: number(value.open),\n    high: number(value.high),\n    low: number(value.low),\n    close: number(value.close),\n    volume: number(value.volume)\n  })).filter((candle) => (\n    candle.datetime &&\n    Number.isFinite(candle.open) &&\n    Number.isFinite(candle.high) &&\n    Number.isFinite(candle.low) &&\n    Number.isFinite(candle.close)\n  ));\n  parsed.sort((a, b) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime());\n  return parsed;\n}\n\nfunction analyzeSeries(payload) {\n  const candles = parseCandles(payload);\n  const meta = payload?.meta ?? {};\n  const symbol = String(meta.symbol ?? payload?.symbol ?? \"UNKNOWN\");\n  const interval = String(meta.interval ?? payload?.interval ?? \"unknown\");\n  if (candles.length < 60) {\n    return {\n      symbol,\n      interval,\n      valid: false,\n      error: \"At least 60 OHLC candles are required\",\n      candleCount: candles.length\n    };\n  }\n\n  const closes = candles.map((candle) => candle.close);\n  const current = candles[candles.length - 1];\n  const ema20 = ema(closes, 20);\n  const ema50 = ema(closes, 50);\n  const ema200 = ema(closes, 200);\n  const rsi14 = rsi(closes, 14);\n  const atr14 = atr(candles, 14);\n  const cloud = ichimoku(candles);\n  const fib = fibonacci(candles);\n  const box = yesterdayBox(candles);\n  const recent = candles.slice(-20);\n  const recentHigh = Math.max(...recent.map((candle) => candle.high));\n  const recentLow = Math.min(...recent.map((candle) => candle.low));\n\n  let score = 0;\n  const reasons = [];\n  if (current.close > ema20) {\n    score += 1;\n    reasons.push(\"price_above_ema20\");\n  } else {\n    score -= 1;\n    reasons.push(\"price_below_ema20\");\n  }\n  if (ema20 > ema50) {\n    score += 1;\n    reasons.push(\"ema20_above_ema50\");\n  } else {\n    score -= 1;\n    reasons.push(\"ema20_below_ema50\");\n  }\n  if (Number.isFinite(ema200)) {\n    score += current.close > ema200 ? 0.75 : -0.75;\n  }\n  if (cloud) {\n    if (current.close > cloud.cloudTop) {\n      score += 1.5;\n      reasons.push(\"price_above_ichimoku_cloud\");\n    } else if (current.close < cloud.cloudBottom) {\n      score -= 1.5;\n      reasons.push(\"price_below_ichimoku_cloud\");\n    } else {\n      reasons.push(\"price_inside_ichimoku_cloud\");\n    }\n    score += cloud.tenkan > cloud.kijun ? 0.75 : -0.75;\n  }\n  if (Number.isFinite(rsi14)) {\n    if (rsi14 > 55 && rsi14 < 75) score += 0.5;\n    if (rsi14 < 45 && rsi14 > 25) score -= 0.5;\n    if (rsi14 >= 75) reasons.push(\"rsi_overbought\");\n    if (rsi14 <= 25) reasons.push(\"rsi_oversold\");\n  }\n  if (box) {\n    if (current.close > box.high) {\n      score += 0.75;\n      reasons.push(\"above_yesterday_high\");\n    } else if (current.close < box.low) {\n      score -= 0.75;\n      reasons.push(\"below_yesterday_low\");\n    } else {\n      reasons.push(\"inside_yesterday_box\");\n    }\n  }\n\n  const strategyVotes = {\n    trend: Math.sign(\n      (current.close > ema20 ? 1 : -1) +\n      (ema20 > ema50 ? 1 : -1) +\n      (cloud ? (current.close > cloud.cloudTop ? 1 : current.close < cloud.cloudBottom ? -1 : 0) : 0)\n    ),\n    momentum: Number.isFinite(rsi14)\n      ? (rsi14 >= 55 && current.close > ema20 ? 1 : rsi14 <= 45 && current.close < ema20 ? -1 : 0)\n      : 0,\n    breakout: box\n      ? (current.close > box.high ? 1 : current.close < box.low ? -1 : 0)\n      : 0,\n    otePullback: fib && current.close >= fib.oteLow && current.close <= fib.oteHigh\n      ? (fib.impulse === \"bullish\" ? 1 : -1)\n      : 0,\n    meanReversion: Number.isFinite(rsi14)\n      ? (rsi14 <= 25 ? 1 : rsi14 >= 75 ? -1 : 0)\n      : 0\n  };\n\n  const intervalMinutes = TIMEFRAME_MINUTES[interval] ?? 60;\n  const lastCandleMs = new Date(current.datetime).getTime();\n  const ageMinutes = Number.isFinite(lastCandleMs) ? (Date.now() - lastCandleMs) / 60000 : Infinity;\n  const stale = ageMinutes > Math.max(intervalMinutes * 3.5, 30);\n\n  return {\n    symbol,\n    interval,\n    valid: true,\n    candleCount: candles.length,\n    lastCandle: current.datetime,\n    ageMinutes: Math.max(0, ageMinutes),\n    stale,\n    price: current.close,\n    score,\n    strategyVotes,\n    reasons,\n    indicators: { ema20, ema50, ema200, rsi14, atr14, ichimoku: cloud },\n    fibonacci: fib,\n    yesterdayBox: box,\n    recentHigh,\n    recentLow\n  };\n}\n\nfunction flattenPayloads(payloads) {\n  const series = [];\n  for (const payload of payloads) {\n    if (payload?.values && payload?.meta) {\n      series.push(payload);\n      continue;\n    }\n    for (const value of Object.values(payload ?? {})) {\n      if (value?.values && value?.meta) series.push(value);\n    }\n  }\n  return series;\n}\n\nfunction buildSignal(symbol, frames, instrumentConfig = {}) {\n  const valid = frames.filter((frame) => frame.valid);\n  if (!valid.length) {\n    return { symbol, status: \"NO_DATA\", direction: \"WAIT\", confidence: 0, timeframes: frames };\n  }\n  let weightedScore = 0;\n  let totalWeight = 0;\n  for (const frame of valid) {\n    const weight = TIMEFRAME_WEIGHTS[frame.interval] ?? 0.25;\n    weightedScore += frame.score * weight;\n    totalWeight += weight;\n  }\n  weightedScore = totalWeight ? weightedScore / totalWeight : 0;\n  const riskProfile = instrumentConfig.riskProfile ?? \"balanced\";\n  const riskRules = {\n    conservative: { threshold: 1.6, agreement: 0.65, atrStop: 1.8, riskPercent: 0.5 },\n    balanced: { threshold: 1.15, agreement: 0.5, atrStop: 1.6, riskPercent: 1.0 },\n    aggressive: { threshold: 0.75, agreement: 0.4, atrStop: 1.35, riskPercent: 1.5 }\n  };\n  const selectedRisk = riskRules[riskProfile] ?? riskRules.balanced;\n  const strategyNames = [\"trend\", \"momentum\", \"breakout\", \"otePullback\", \"meanReversion\"];\n  const strategyScores = Object.fromEntries(strategyNames.map((strategy) => {\n    const votes = valid.map((frame) => frame.strategyVotes?.[strategy] ?? 0);\n    return [strategy, Number((average(votes) ?? 0).toFixed(2))];\n  }));\n  const priority = [\"5min\", \"15min\", \"1h\", \"4h\", \"1day\"];\n  const executionFrame = [...valid].sort((a, b) => (\n    priority.indexOf(a.interval) - priority.indexOf(b.interval)\n  ))[0] ?? valid[0];\n  const anchor = valid.find((frame) => frame.interval === \"1h\") ?? executionFrame;\n  const price = executionFrame.price;\n  const atrValue = anchor.indicators.atr14 ?? executionFrame.indicators.atr14 ?? price * 0.005;\n  const direction = weightedScore >= 0 ? \"LONG\" : \"SHORT\";\n  const agreement = valid.filter((frame) => Math.sign(frame.score) === Math.sign(weightedScore)).length / valid.length;\n  const stale = valid.every((frame) => frame.stale);\n  const directionalStrategyVotes = Object.values(strategyScores).filter((value) => value !== 0);\n  const strategyAgreement = directionalStrategyVotes.length\n    ? directionalStrategyVotes.filter((value) => Math.sign(value) === Math.sign(weightedScore)).length / directionalStrategyVotes.length\n    : 0;\n  const weak = Math.abs(weightedScore) < selectedRisk.threshold ||\n    agreement < selectedRisk.agreement ||\n    strategyAgreement < 0.5;\n  const status = stale ? \"STALE_DATA\" : weak ? \"WAIT_CONFIRMATION\" : \"ACTIONABLE\";\n  const fib = anchor.fibonacci;\n\n  let entryLow;\n  let entryHigh;\n  if (fib && direction === \"LONG\" && fib.impulse === \"bullish\" && price >= fib.oteLow - atrValue && price <= fib.oteHigh + atrValue) {\n    entryLow = fib.oteLow;\n    entryHigh = fib.oteHigh;\n  } else if (fib && direction === \"SHORT\" && fib.impulse === \"bearish\" && price >= fib.oteLow - atrValue && price <= fib.oteHigh + atrValue) {\n    entryLow = fib.oteLow;\n    entryHigh = fib.oteHigh;\n  } else {\n    entryLow = direction === \"LONG\" ? price - (atrValue * 0.20) : price - (atrValue * 0.10);\n    entryHigh = direction === \"LONG\" ? price + (atrValue * 0.10) : price + (atrValue * 0.20);\n  }\n  const entry = (entryLow + entryHigh) / 2;\n  const structuralStop = direction === \"LONG\"\n    ? Math.min(anchor.recentLow, entry - (atrValue * selectedRisk.atrStop))\n    : Math.max(anchor.recentHigh, entry + (atrValue * selectedRisk.atrStop));\n  const risk = Math.max(Math.abs(entry - structuralStop), atrValue);\n  const multiplier = direction === \"LONG\" ? 1 : -1;\n  const takeProfits = [1, 1.5, 2, 3].map((multiple) => entry + (multiplier * risk * multiple));\n  const confidence = Math.max(35, Math.min(88, Math.round(\n    48 + (Math.abs(weightedScore) * 5) + (agreement * 18) - (stale ? 30 : 0)\n  )));\n\n  return {\n    symbol,\n    label: instrumentConfig.label ?? symbol,\n    assetClass: instrumentConfig.assetClass ?? \"other\",\n    currencies: instrumentConfig.currencies ?? [],\n    status,\n    direction,\n    confidence,\n    price: rounded(price, price),\n    entryZone: [rounded(Math.min(entryLow, entryHigh), price), rounded(Math.max(entryLow, entryHigh), price)],\n    stopLoss: rounded(structuralStop, price),\n    takeProfits: takeProfits.map((target) => rounded(target, price)),\n    riskDistance: rounded(risk, price),\n    riskProfile,\n    suggestedRiskPercent: selectedRisk.riskPercent,\n    score: Number(weightedScore.toFixed(3)),\n    timeframeAgreement: Number(agreement.toFixed(2)),\n    strategyAgreement: Number(strategyAgreement.toFixed(2)),\n    strategies: strategyScores,\n    opportunityScore: Math.round(confidence * (0.65 + (agreement * 0.2) + (strategyAgreement * 0.15))),\n    dataFresh: !stale,\n    fibonacci: fib ? {\n      impulse: fib.impulse,\n      swingLow: rounded(fib.low, price),\n      swingHigh: rounded(fib.high, price),\n      oteZone: [rounded(fib.oteLow, price), rounded(fib.oteHigh, price)]\n    } : null,\n    yesterdayBox: anchor.yesterdayBox ? {\n      date: anchor.yesterdayBox.date,\n      high: rounded(anchor.yesterdayBox.high, price),\n      mid: rounded(anchor.yesterdayBox.mid, price),\n      low: rounded(anchor.yesterdayBox.low, price)\n    } : null,\n    timeframes: valid.map((frame) => ({\n      interval: frame.interval,\n      score: Number(frame.score.toFixed(2)),\n      price: rounded(frame.price, price),\n      rsi14: rounded(frame.indicators.rsi14, 100),\n      atr14: rounded(frame.indicators.atr14, price),\n      ichimokuBias: frame.indicators.ichimoku\n        ? frame.price > frame.indicators.ichimoku.cloudTop\n          ? \"bullish\"\n          : frame.price < frame.indicators.ichimoku.cloudBottom\n            ? \"bearish\"\n            : \"neutral\"\n        : \"unavailable\",\n      stale: frame.stale,\n      reasons: frame.reasons\n    }))\n  };\n}\n\nfunction analyzeMarketPayloads(payloads, config = {}) {\n  const series = flattenPayloads(payloads);\n  const analyses = series.map(analyzeSeries);\n  const groups = new Map();\n  for (const analysis of analyses) {\n    if (!groups.has(analysis.symbol)) groups.set(analysis.symbol, []);\n    groups.get(analysis.symbol).push(analysis);\n  }\n  const instruments = config.instruments ?? [];\n  const instrumentMap = new Map(instruments.map((instrument) => [\n    instrument.symbol,\n    { ...instrument, riskProfile: instrument.riskProfile ?? config.riskProfile ?? \"balanced\" }\n  ]));\n  const signals = [...groups.entries()].map(([symbol, frames]) => (\n    buildSignal(symbol, frames, instrumentMap.get(symbol))\n  ));\n  signals.sort((a, b) => b.opportunityScore - a.opportunityScore);\n  const errors = analyses.filter((analysis) => !analysis.valid);\n  return {\n    generatedAt: new Date().toISOString(),\n    signals,\n    dataQuality: {\n      receivedSeries: series.length,\n      validSeries: analyses.length - errors.length,\n      invalidSeries: errors.length,\n      errors\n    }\n  };\n}\n\n\nconst payloads = $input.all().map((item) => item.json);\nconst runtime = $('Runtime Config').first().json;\nconst technical = analyzeMarketPayloads(payloads, runtime.config);\nif (!technical.signals.length) throw new Error('Market provider returned no analyzable instruments');\nreturn [{ json: { technical, runMode: runtime.runMode, triggerPayload: runtime.triggerPayload } }];"
+      }
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000015",
+      "name": "Calendar Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        60
+      ],
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst config = $('Runtime Config').first().json.config;\nconst start = new Date();\nconst end = new Date(Date.now() + (36 * 60 * 60 * 1000));\nconst day = (value) => value.toISOString().slice(0, 10);\nconst countries = ['united states','euro area','united kingdom','japan','china','canada','australia','new zealand','switzerland'];\nconst countryPath = countries.map(encodeURIComponent).join(',');\nconst url = 'https://api.tradingeconomics.com/calendar/country/' + countryPath + '/' + day(start) + '/' + day(end) +\n  '?c=' + encodeURIComponent(config.tradingEconomicsApiKey) + '&f=json';\nreturn [{ json: { url, technical: input.technical, runMode: input.runMode, triggerPayload: input.triggerPayload } }];"
+      }
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000016",
+      "name": "Fetch Economic Calendar",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        460,
+        60
+      ],
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1500
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000017",
+      "name": "Event Risk Filter",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        700,
+        60
+      ],
+      "parameters": {
+        "jsCode": "const rawItems = $input.all().map((item) => item.json);\nconst prior = $('Calendar Request').first().json;\nconst config = $('Runtime Config').first().json.config;\nconst events = rawItems.flatMap((item) => Array.isArray(item) ? item : [item]).filter((item) => item && (item.Event || item.event));\nconst countryCurrency = {\n  'United States':'USD','Euro Area':'EUR','United Kingdom':'GBP','Japan':'JPY','China':'CNY',\n  'Canada':'CAD','Australia':'AUD','New Zealand':'NZD','Switzerland':'CHF'\n};\nconst now = Date.now();\nconst normalizedEvents = events.map((event) => {\n  const timestamp = new Date(event.Date ?? event.date).getTime();\n  return {\n    date: event.Date ?? event.date,\n    timestamp,\n    minutesFromNow: Number.isFinite(timestamp) ? Math.round((timestamp - now) / 60000) : null,\n    country: event.Country ?? event.country ?? '',\n    currency: countryCurrency[event.Country ?? event.country] ?? event.Currency ?? '',\n    event: event.Event ?? event.event ?? event.Category ?? '',\n    category: event.Category ?? event.category ?? '',\n    importance: Number(event.Importance ?? event.importance ?? 0),\n    actual: event.Actual ?? event.actual ?? '',\n    forecast: event.Forecast ?? event.forecast ?? '',\n    previous: event.Previous ?? event.previous ?? ''\n  };\n}).filter((event) => Number.isFinite(event.timestamp)).sort((a, b) => a.timestamp - b.timestamp);\nconst signals = prior.technical.signals.map((signal) => {\n  const affectedCurrencies = new Set(signal.currencies ?? []);\n  if (signal.assetClass === 'crypto' || signal.assetClass === 'commodity') affectedCurrencies.add('USD');\n  const relevantEvents = normalizedEvents.filter((event) => affectedCurrencies.has(event.currency));\n  const blackout = relevantEvents.find((event) => event.importance >= 3 &&\n    event.minutesFromNow >= -config.eventBlackoutMinutesAfter &&\n    event.minutesFromNow <= config.eventBlackoutMinutesBefore);\n  return {\n    ...signal,\n    status: blackout ? 'WAIT_EVENT' : signal.status,\n    eventBlackout: blackout ?? null,\n    relevantEvents: relevantEvents.filter((event) => event.minutesFromNow >= -180 && event.minutesFromNow <= 1440).slice(0, 8)\n  };\n});\nreturn [{ json: {\n  generatedAt: prior.technical.generatedAt,\n  dataQuality: prior.technical.dataQuality,\n  signals,\n  events: normalizedEvents.filter((event) => event.minutesFromNow >= -180 && event.minutesFromNow <= 2160).slice(0, 40),\n  runMode: prior.runMode,\n  triggerPayload: prior.triggerPayload\n} }];"
+      }
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000018",
+      "name": "Signal Lifecycle and Performance",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        940,
+        60
+      ],
+      "parameters": {
+        "jsCode": "const context = $input.first().json;\nconst state = $getWorkflowStaticData('global');\nstate.openSignals = state.openSignals ?? {};\nstate.performance = state.performance ?? { closed: 0, tp1Wins: 0, stopLosses: 0, reversals: 0 };\nconst isHit = (direction, price, level, kind) => kind === 'tp'\n  ? (direction === 'LONG' ? price >= level : price <= level)\n  : (direction === 'LONG' ? price <= level : price >= level);\nconst signals = context.signals.map((signal, index) => {\n  const previous = state.openSignals[signal.symbol];\n  let signalUpdate = signal.status === 'ACTIONABLE' ? 'NEW' : 'WATCH';\n  let hitTargets = previous?.hitTargets ?? [];\n  if (previous?.state === 'OPEN') {\n    if (previous.direction !== signal.direction && signal.status === 'ACTIONABLE') {\n      previous.state = 'REVERSED';\n      previous.closedAt = new Date().toISOString();\n      state.performance.closed += 1;\n      state.performance.reversals += 1;\n      signalUpdate = 'REVERSED';\n    } else if (isHit(previous.direction, signal.price, previous.stopLoss, 'sl')) {\n      previous.state = 'STOP_LOSS';\n      previous.closedAt = new Date().toISOString();\n      state.performance.closed += 1;\n      state.performance.stopLosses += 1;\n      signalUpdate = 'SL_HIT';\n    } else {\n      hitTargets = previous.takeProfits.map((target, targetIndex) =>\n        previous.hitTargets.includes(targetIndex + 1) || isHit(previous.direction, signal.price, target, 'tp') ? targetIndex + 1 : null\n      ).filter(Boolean);\n      if (hitTargets.length > previous.hitTargets.length) {\n        if (!previous.hitTargets.includes(1) && hitTargets.includes(1)) state.performance.tp1Wins += 1;\n        previous.hitTargets = hitTargets;\n        signalUpdate = 'TP' + Math.max(...hitTargets) + '_HIT';\n      } else signalUpdate = signal.status === 'ACTIONABLE' ? 'UPDATED' : 'HOLD';\n      if (hitTargets.includes(4)) { previous.state = 'TP4_COMPLETE'; previous.closedAt = new Date().toISOString(); state.performance.closed += 1; }\n    }\n  }\n  if (signal.status === 'ACTIONABLE' && (!previous || previous.state !== 'OPEN' || previous.direction !== signal.direction)) {\n    state.openSignals[signal.symbol] = {\n      state: 'OPEN', direction: signal.direction, openedAt: new Date().toISOString(),\n      entryZone: signal.entryZone, stopLoss: signal.stopLoss, takeProfits: signal.takeProfits, hitTargets: []\n    };\n    if (signalUpdate !== 'REVERSED') signalUpdate = 'NEW';\n  }\n  return {\n    ...signal,\n    opportunityRank: index + 1,\n    signalUpdate,\n    hitTargets,\n    vipPriority: signal.status === 'ACTIONABLE' && signal.opportunityScore >= 75 && signal.strategyAgreement >= 0.6\n  };\n});\nreturn [{ json: { ...context, signals, performance: state.performance } }];"
+      }
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000019",
+      "name": "Build Trading Economics News Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1180,
+        60
+      ],
+      "parameters": {
+        "jsCode": "const context = $input.first().json;\nconst config = $('Runtime Config').first().json.config;\nconst url = 'https://api.tradingeconomics.com/news?c=' + encodeURIComponent(config.tradingEconomicsApiKey) + '&f=json';\nreturn [{ json: { url, context } }];"
+      }
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000020",
+      "name": "Fetch Trading Economics News",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1420,
+        60
+      ],
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1500
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000021",
+      "name": "Build GDELT News Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1660,
+        60
+      ],
+      "parameters": {
+        "jsCode": "const teNewsItems = $input.all().map((item) => item.json);\nconst prior = $('Build Trading Economics News Request').first().json;\nconst query = '(gold OR oil OR forex OR dollar OR inflation OR central bank OR bitcoin OR ethereum OR geopolitics)';\nconst url = 'https://api.gdeltproject.org/api/v2/doc/doc?query=' + encodeURIComponent(query) +\n  '&mode=ArtList&maxrecords=50&format=json&sort=HybridRel&timespan=12h';\nreturn [{ json: { url, context: prior.context, teNewsItems } }];"
+      }
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000022",
+      "name": "Fetch GDELT News",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1900,
+        60
+      ],
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1500
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000023",
+      "name": "Build Qwen Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2140,
+        60
+      ],
+      "parameters": {
+        "jsCode": "const gdelt = $input.first()?.json ?? {};\nconst prior = $('Build GDELT News Request').first().json;\nconst config = $('Runtime Config').first().json.config;\nconst gdeltNews = (gdelt.articles ?? gdelt.items ?? []).slice(0, 30).map((article) => ({\n  source: 'GDELT', title: article.title ?? '', domain: article.domain ?? article.source ?? '',\n  seenDate: article.seendate ?? article.date ?? '', url: article.url ?? '', tone: article.tone ?? null\n}));\nconst teNews = prior.teNewsItems.flatMap((item) => Array.isArray(item) ? item : [item]).slice(0, 30).map((article) => ({\n  source: 'Trading Economics', title: article.title ?? article.Title ?? '',\n  description: article.description ?? article.Description ?? '',\n  date: article.date ?? article.Date ?? '', url: article.url ?? article.URL ?? ''\n}));\nconst context = { ...prior.context, news: [...teNews, ...gdeltNews] };\nconst publicContext = {\n  generatedAt: context.generatedAt, runMode: context.runMode, tradingViewAlert: context.triggerPayload,\n  riskProfile: config.riskProfile, serviceTier: config.serviceTier, dataQuality: context.dataQuality,\n  performance: context.performance, events: context.events, news: context.news, signals: context.signals\n};\nconst system = [\n  'You are the explanation layer for NICS Professional Market Intelligence Agent.',\n  'All numeric levels are deterministic and immutable. Never recalculate, alter or invent Entry, TP or SL.',\n  'Cross-check the supplied macro events, multi-source headlines, TradingView alert and strategy ensemble.',\n  'Explain conflicts and uncertainty. Never promise profit or recommend leverage.',\n  'Return valid JSON only with analysis array and economicDigestRu, economicDigestEn, globalRiskRu, globalRiskEn.',\n  'Each analysis item must contain symbol, whyRu, whyEn, riskRu and riskEn.'\n].join(' ');\nconst requestBody = {\n  model: config.qwenModel, temperature: 0.1, max_completion_tokens: 5000,\n  response_format: { type: 'json_object' },\n  messages: [{ role: 'system', content: system }, { role: 'user', content: JSON.stringify(publicContext) }]\n};\nreturn [{ json: {\n  llmUrl: config.modelStudioBaseUrl.replace(/\\/$/, '') + '/chat/completions',\n  requestBody, context\n} }];"
+      }
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000024",
+      "name": "Qwen Market Explanation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2380,
+        60
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.llmUrl }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ 'Bearer ' + $('Runtime Config').first().json.config.dashscopeApiKey }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify($json.requestBody) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000025",
+      "name": "Validate and Format Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2620,
+        60
+      ],
+      "parameters": {
+        "jsCode": "const response = $input.first()?.json ?? {};\nconst context = $('Build Qwen Request').first().json.context;\nlet explanation = {};\ntry {\n  const content = String(response.choices?.[0]?.message?.content ?? '{}');\n  const start = content.indexOf('{');\n  const end = content.lastIndexOf('}');\n  explanation = JSON.parse(start >= 0 && end >= start ? content.slice(start, end + 1) : '{}');\n} catch (error) {\n  explanation = { globalRiskRu: 'Модель объяснений вернула некорректный JSON.', globalRiskEn: 'The explanation model returned invalid JSON.' };\n}\nconst explanationBySymbol = new Map((explanation.analysis ?? []).map((item) => [item.symbol, item]));\nconst formatTime = (zone) => new Intl.DateTimeFormat('en-GB', {\n  timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit',\n  hour: '2-digit', minute: '2-digit', hour12: false\n}).format(new Date());\nconst lines = ['NICS PROFESSIONAL MARKET INTELLIGENCE'];\nlines.push('Sofia: ' + formatTime('Europe/Sofia') + ' | Rome: ' + formatTime('Europe/Rome') + ' | Auckland: ' + formatTime('Pacific/Auckland'));\nlines.push('Risk profile: ' + ($('Runtime Config').first().json.config.riskProfile ?? 'balanced') + ' | Performance: TP1 ' + context.performance.tp1Wins + ', SL ' + context.performance.stopLosses);\nlines.push('', 'ЭКОНОМИЧЕСКИЙ ДАЙДЖЕСТ');\nlines.push(explanation.economicDigestRu ?? 'Сводка формируется только из полученных событий и новостей.');\nlines.push(explanation.globalRiskRu ?? 'Проверьте ликвидность, спред и время следующего важного события.', '');\nconst selected = [...context.signals].sort((a, b) => b.opportunityScore - a.opportunityScore).slice(0, context.runMode === 'digest' ? 8 : 5);\nfor (const signal of selected) {\n  const note = explanationBySymbol.get(signal.symbol) ?? {};\n  lines.push((signal.vipPriority ? 'VIP | ' : '') + '#' + signal.opportunityRank + ' ' + signal.label + ' | ' + signal.status + ' | ' + signal.direction + ' | ' + signal.confidence + '%');\n  lines.push('Update: ' + signal.signalUpdate + ' | Opportunity: ' + signal.opportunityScore + ' | Strategies: ' + JSON.stringify(signal.strategies));\n  lines.push('Цена: ' + signal.price);\n  if (signal.yesterdayBox) lines.push('Yesterday Box: H ' + signal.yesterdayBox.high + ' | M ' + signal.yesterdayBox.mid + ' | L ' + signal.yesterdayBox.low);\n  if (signal.fibonacci) lines.push('Fibonacci ' + signal.fibonacci.impulse + ' | OTE ' + signal.fibonacci.oteZone[0] + '-' + signal.fibonacci.oteZone[1]);\n  lines.push('Entry: ' + signal.entryZone.join('-'));\n  signal.takeProfits.forEach((target, index) => lines.push('TP' + (index + 1) + ': ' + target));\n  lines.push('SL: ' + signal.stopLoss + ' | Risk: ' + signal.suggestedRiskPercent + '%');\n  lines.push('Почему: ' + (note.whyRu ?? 'Согласование таймфреймов, стратегий, Ichimoku, EMA, RSI, ATR, OTE и Yesterday Box.'));\n  if (signal.eventBlackout) lines.push('Блокировка: ' + signal.eventBlackout.event + ' через ' + signal.eventBlackout.minutesFromNow + ' мин.');\n  lines.push('Риск: ' + (note.riskRu ?? 'Дождитесь подтверждения, проверьте спред и отмените сценарий за SL.'), '');\n}\nlines.push('ECONOMIC DIGEST');\nlines.push(explanation.economicDigestEn ?? 'The digest uses only supplied events and headlines.');\nlines.push(explanation.globalRiskEn ?? 'Check liquidity, spread and the next high-impact event.', '');\nfor (const signal of selected) {\n  const note = explanationBySymbol.get(signal.symbol) ?? {};\n  lines.push((signal.vipPriority ? 'VIP | ' : '') + '#' + signal.opportunityRank + ' ' + signal.label + ' | ' + signal.status + ' | ' + signal.direction + ' | ' + signal.confidence + '%');\n  lines.push('Update: ' + signal.signalUpdate + ' | Opportunity: ' + signal.opportunityScore + ' | Strategies: ' + JSON.stringify(signal.strategies));\n  lines.push('Current: ' + signal.price + ' | Entry: ' + signal.entryZone.join('-'));\n  lines.push('TP1-TP4: ' + signal.takeProfits.join(' / ') + ' | SL: ' + signal.stopLoss);\n  lines.push('Why: ' + (note.whyEn ?? 'Multi-timeframe and multi-strategy agreement with Ichimoku, EMA, RSI, ATR, OTE and Yesterday Box.'));\n  if (signal.eventBlackout) lines.push('Event blackout: ' + signal.eventBlackout.event + ' in ' + signal.eventBlackout.minutesFromNow + ' min.');\n  lines.push('Risk: ' + (note.riskEn ?? 'Wait for confirmation, check spread and invalidate beyond SL.'), '');\n}\nlines.push('NFA: Decision support only. This workflow does not place orders or guarantee profit.');\nconst leader = selected[0];\nconst tweet = leader ? ('$' + leader.symbol.replace('/', '') + ' ' + leader.direction + ' | Entry ' + leader.entryZone.join('-') + ' | TP ' + leader.takeProfits.join('/') + ' | SL ' + leader.stopLoss + ' | ' + leader.status + ' | NFA').slice(0, 280) : 'NICS market scan: no valid signal. NFA';\nreturn [{ json: {\n  generatedAt: new Date().toISOString(), runMode: context.runMode, report: lines.join('\\n'), tweet,\n  structured: { signals: context.signals, events: context.events, news: context.news, performance: context.performance, dataQuality: context.dataQuality },\n  modelUsage: response.usage ?? null\n} }];"
+      }
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000026",
+      "name": "Record Audit Snapshot",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2860,
+        60
+      ],
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nconst state = $getWorkflowStaticData('global');\nstate.audit = Array.isArray(state.audit) ? state.audit : [];\nstate.audit.push({ generatedAt: item.generatedAt, runMode: item.runMode,\n  signals: item.structured.signals.map((signal) => ({ symbol: signal.symbol, status: signal.status, direction: signal.direction, confidence: signal.confidence, update: signal.signalUpdate }))\n});\nstate.audit = state.audit.slice(-100);\nreturn [{ json: item }];"
+      }
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000027",
+      "name": "Prepare Telegram Delivery",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3100,
+        -20
+      ],
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nconst config = $('Runtime Config').first().json.config;\nconst actionable = item.structured.signals.filter((signal) => signal.status === 'ACTIONABLE');\nconst urgent = item.structured.signals.filter((signal) => signal.vipPriority || /_HIT$|REVERSED/.test(signal.signalUpdate));\nconst state = $getWorkflowStaticData('global');\nstate.notifications = state.notifications ?? {};\nconst key = actionable.map((signal) => signal.symbol + ':' + signal.direction + ':' + signal.signalUpdate).sort().join('|') || 'digest';\nconst last = state.notifications[key] ?? 0;\nconst cooldown = config.notificationCooldownMinutes * 60000;\nif (item.runMode === 'scan' && !urgent.length && (!actionable.length || Date.now() - last < cooldown)) return [];\nstate.notifications[key] = Date.now();\nif (!config.telegramBotToken || !config.telegramChatId) return [];\nconst paragraphs = item.report.split('\\n\\n');\nconst chunks = [];\nlet current = '';\nfor (const paragraph of paragraphs) {\n  if ((current + '\\n\\n' + paragraph).length > 3500 && current) { chunks.push(current); current = paragraph; }\n  else current = current ? current + '\\n\\n' + paragraph : paragraph;\n}\nif (current) chunks.push(current);\nreturn chunks.map((text) => ({ json: {\n  url: 'https://api.telegram.org/bot' + config.telegramBotToken + '/sendMessage',\n  body: { chat_id: config.telegramChatId, text, disable_web_page_preview: true }\n} }));"
+      }
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000028",
+      "name": "Send Telegram Digest",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3340,
+        -20
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify($json.body) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1500
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000029",
+      "name": "Prepare WhatsApp Delivery",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3100,
+        140
+      ],
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nconst config = $('Runtime Config').first().json.config;\nconst actionable = item.structured.signals.filter((signal) => signal.status === 'ACTIONABLE');\nconst urgent = item.structured.signals.filter((signal) => signal.vipPriority || /_HIT$|REVERSED/.test(signal.signalUpdate));\nconst state = $getWorkflowStaticData('global');\nstate.notifications = state.notifications ?? {};\nconst key = actionable.map((signal) => signal.symbol + ':' + signal.direction + ':' + signal.signalUpdate).sort().join('|') || 'digest';\nconst last = state.notifications[key] ?? 0;\nconst cooldown = config.notificationCooldownMinutes * 60000;\nif (item.runMode === 'scan' && !urgent.length && (!actionable.length || Date.now() - last < cooldown)) return [];\nstate.notifications[key] = Date.now();\nif (!config.whatsAppAccessToken || !config.whatsAppPhoneNumberId || !config.whatsAppTo) return [];\nconst text = item.report.length > 3800 ? item.report.slice(0, 3790) + '\\n…' : item.report;\nreturn [{ json: {\n  url: 'https://graph.facebook.com/v23.0/' + config.whatsAppPhoneNumberId + '/messages',\n  token: config.whatsAppAccessToken,\n  body: { messaging_product: 'whatsapp', to: config.whatsAppTo, type: 'text', text: { preview_url: false, body: text } }\n} }];"
+      }
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000030",
+      "name": "Send WhatsApp Digest",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3340,
+        140
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ 'Bearer ' + $json.token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify($json.body) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1500
+    }
+  ],
+  "connections": {
+    "Manual Test": {
+      "main": [
+        [
+          {
+            "node": "Manual Mode",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Market Scan (15m)": {
+      "main": [
+        [
+          {
+            "node": "Scan Mode",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Digest (07:30)": {
+      "main": [
+        [
+          {
+            "node": "Digest Mode",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TradingView Webhook": {
+      "main": [
+        [
+          {
+            "node": "TradingView Mode",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Personal Market Query": {
+      "main": [
+        [
+          {
+            "node": "Assistant Mode",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Mode": {
+      "main": [
+        [
+          {
+            "node": "Runtime Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scan Mode": {
+      "main": [
+        [
+          {
+            "node": "Runtime Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Digest Mode": {
+      "main": [
+        [
+          {
+            "node": "Runtime Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TradingView Mode": {
+      "main": [
+        [
+          {
+            "node": "Runtime Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assistant Mode": {
+      "main": [
+        [
+          {
+            "node": "Runtime Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Runtime Config": {
+      "main": [
+        [
+          {
+            "node": "Build Market Requests",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Market Requests": {
+      "main": [
+        [
+          {
+            "node": "Fetch Batched OHLC",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Batched OHLC": {
+      "main": [
+        [
+          {
+            "node": "Deterministic Technical Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deterministic Technical Engine": {
+      "main": [
+        [
+          {
+            "node": "Calendar Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar Request": {
+      "main": [
+        [
+          {
+            "node": "Fetch Economic Calendar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Economic Calendar": {
+      "main": [
+        [
+          {
+            "node": "Event Risk Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Event Risk Filter": {
+      "main": [
+        [
+          {
+            "node": "Signal Lifecycle and Performance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Signal Lifecycle and Performance": {
+      "main": [
+        [
+          {
+            "node": "Build Trading Economics News Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Trading Economics News Request": {
+      "main": [
+        [
+          {
+            "node": "Fetch Trading Economics News",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Trading Economics News": {
+      "main": [
+        [
+          {
+            "node": "Build GDELT News Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build GDELT News Request": {
+      "main": [
+        [
+          {
+            "node": "Fetch GDELT News",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch GDELT News": {
+      "main": [
+        [
+          {
+            "node": "Build Qwen Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Qwen Request": {
+      "main": [
+        [
+          {
+            "node": "Qwen Market Explanation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qwen Market Explanation": {
+      "main": [
+        [
+          {
+            "node": "Validate and Format Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate and Format Report": {
+      "main": [
+        [
+          {
+            "node": "Record Audit Snapshot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record Audit Snapshot": {
+      "main": [
+        [
+          {
+            "node": "Prepare Telegram Delivery",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Prepare WhatsApp Delivery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Telegram Delivery": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare WhatsApp Delivery": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Sofia"
+  }
+}
