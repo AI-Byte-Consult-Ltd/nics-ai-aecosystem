@@ -1,0 +1,23 @@
+{
+  "timeframes": ["5min", "15min", "1h", "4h"],
+  "scanIntervalMinutes": 15,
+  "serviceTier": "elite",
+  "riskProfile": "balanced",
+  "eventBlackoutMinutesBefore": 30,
+  "eventBlackoutMinutesAfter": 15,
+  "instruments": [
+    {"symbol": "XAU/USD", "label": "Gold", "assetClass": "commodity", "currencies": ["USD"]},
+    {"symbol": "XAG/USD", "label": "Silver", "assetClass": "commodity", "currencies": ["USD"]},
+    {"symbol": "EUR/USD", "label": "EUR/USD", "assetClass": "forex", "currencies": ["EUR", "USD"]},
+    {"symbol": "GBP/USD", "label": "GBP/USD", "assetClass": "forex", "currencies": ["GBP", "USD"]},
+    {"symbol": "USD/JPY", "label": "USD/JPY", "assetClass": "forex", "currencies": ["USD", "JPY"]},
+    {"symbol": "USD/CHF", "label": "USD/CHF", "assetClass": "forex", "currencies": ["USD", "CHF"]},
+    {"symbol": "AUD/USD", "label": "AUD/USD", "assetClass": "forex", "currencies": ["AUD", "USD"]},
+    {"symbol": "USD/CAD", "label": "USD/CAD", "assetClass": "forex", "currencies": ["USD", "CAD"]},
+    {"symbol": "WTI/USD", "label": "WTI Crude Oil", "assetClass": "commodity", "currencies": ["USD", "CAD"]},
+    {"symbol": "BRENT/USD", "label": "Brent Crude Oil", "assetClass": "commodity", "currencies": ["USD", "GBP"]},
+    {"symbol": "BTC/USD", "label": "Bitcoin", "assetClass": "crypto", "currencies": ["USD"]},
+    {"symbol": "ETH/USD", "label": "Ethereum", "assetClass": "crypto", "currencies": ["USD"]},
+    {"symbol": "SOL/USD", "label": "Solana", "assetClass": "crypto", "currencies": ["USD"]}
+  ]
+}
