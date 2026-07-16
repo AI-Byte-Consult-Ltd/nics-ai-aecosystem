@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "NICS TradingView Alert",
+  "type": "object",
+  "required": ["secret", "ticker", "interval", "close", "time"],
+  "properties": {
+    "secret": {"type": "string", "minLength": 12},
+    "ticker": {"type": "string"},
+    "exchange": {"type": "string"},
+    "interval": {"type": "string"},
+    "close": {"type": ["number", "string"]},
+    "time": {"type": "string"},
+    "alertName": {"type": "string"},
+    "strategyAction": {"enum": ["buy", "sell", "long", "short", "close", "none"]},
+    "indicators": {
+      "type": "object",
+      "additionalProperties": {"type": ["number", "string", "boolean", "null"]}
+    }
+  },
+  "additionalProperties": true
+}
