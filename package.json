@@ -1,0 +1,15 @@
+{
+  "name": "nics-professional-market-intelligence-agent",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Source, tests and n8n workflow for the NICS Professional Market Intelligence Agent.",
+  "scripts": {
+    "test": "node --test tests/technical-analysis.test.mjs",
+    "build:workflow": "node scripts/build-workflow.mjs",
+    "validate": "npm run build:workflow && npm test && node scripts/validate-workflow.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
